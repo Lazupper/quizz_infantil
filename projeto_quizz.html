@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-P8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Infantil Divertido</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Cor de fundo suave */
+        }
+        .quiz-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 16px; /* Bordas bem arredondadas */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Sombra suave */
+        }
+        .btn {
+            transition: all 0.3s ease;
+            border-radius: 8px; /* Botões com bordas arredondadas */
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+        }
+        .btn-primary {
+            background-color: #3b82f6; /* Azul Figma */
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+        .btn-option {
+            background-color: #e5e7eb; /* Cinza claro para opções */
+            color: #374151; /* Texto escuro */
+            border: 2px solid transparent;
+            width: 100%;
+            text-align: left;
+        }
+        .btn-option:hover {
+            background-color: #d1d5db;
+            border-color: #9ca3af;
+        }
+        .btn-option.correct {
+            background-color: #10b981; /* Verde para correto */
+            color: white;
+            border-color: #059669;
+        }
+        .btn-option.incorrect {
+            background-color: #ef4444; /* Vermelho para incorreto */
+            color: white;
+            border-color: #dc2626;
+        }
+        .feedback-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+        }
+        /* Animação de entrada suave */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+
+    <div id="quizApp" class="quiz-container">
+        <!-- Tela Inicial -->
+        <div id="startScreen" class="text-center fade-in">
+            <img src="https://placehold.co/150x150/3b82f6/ffffff?text=Quiz!&font=Inter" alt="Ícone do Quiz" class="mx-auto mb-6 rounded-full shadow-lg">
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">Quiz Infantil Divertido!</h1>
+            <p class="text-gray-600 mb-8">Teste seus conhecimentos e divirta-se!</p>
+            <button id="startButton" class="btn btn-primary text-lg">Começar!</button>
+        </div>
+
+        <!-- Tela de Perguntas -->
+        <div id="questionScreen" class="hidden fade-in">
+            <div class="mb-6">
+                <p class="text-sm font-semibold text-blue-600" id="progressText">Pergunta 1 de 3</p>
+                <div class="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                    <div id="progressBar" class="bg-blue-500 h-2.5 rounded-full" style="width: 33%"></div>
+                </div>
+            </div>
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6" id="questionText">Qual animal faz "Miau"?</h2>
+            <div id="optionsContainer" class="space-y-3">
+                <!-- Opções serão inseridas aqui pelo JavaScript -->
+            </div>
+            <div id="feedbackArea" class="mt-6 text-lg font-semibold flex items-center">
+                <!-- Feedback (correto/incorreto) será mostrado aqui -->
+            </div>
+            <button id="nextButton" class="btn btn-primary mt-8 w-full hidden">Próxima Pergunta</button>
+        </div>
+
+        <!-- Tela de Resultados -->
+        <div id="resultScreen" class="hidden text-center fade-in">
+            <img id="resultImage" src="https://placehold.co/120x120/3b82f6/ffffff?text=🎉&font=Inter" alt="Ícone de Resultado" class="mx-auto mb-6 rounded-full">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Quiz Finalizado!</h2>
+            <p class="text-xl text-gray-600 mb-2">Sua pontuação foi:</p>
+            <p class="text-5xl font-bold text-blue-600 mb-8" id="scoreText">0 / 0</p>
+            <p id="resultMessage" class="text-gray-700 mb-6 text-lg"></p>
+            <button id="restartButton" class="btn btn-primary text-lg">Tentar Novamente</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Dados do Quiz ---
+        const questions = [
+            {
+                question: "Qual animal que gosta de uma bola de lã e faz miua?",
+                options: ["Cão", "Gato", "Pássaro", "Peixe"],
+                correctAnswer: "Gato",
+                image: "https://placehold.co/80x80/f472b6/ffffff?text=🐱&font=Inter" // Rosa para Gato
+            },
+            {
+                question: "O céu é de que cor?",
+                options: ["Verde", "Amarelo", "Azul", "Vermelho"],
+                correctAnswer: "Azul",
+                image: "https://placehold.co/80x80/60a5fa/ffffff?text=☀️&font=Inter" // Azul claro para Céu
+            },
+            {
+                question: "A aranha tem quantos pés?",
+                options: ["4", "6", "8", "10"],
+                correctAnswer: "8",
+                image: "https://placehold.co/80x80/78716c/ffffff?text=🕷️&font=Inter" // Cinza para Aranha
+            },
+            {
+                question: "o macaco como que fruta?",
+                options: ["Maçã", "Uva", "Banana", "Laranja"],
+                correctAnswer: "Banana",
+                image: "https://placehold.co/80x80/facc15/ffffff?text=🍌&font=Inter" // Amarelo para Banana
+            },
+            {
+                question: "Que objeto tem 3 lados?",
+                options: ["Círculo", "Quadrado", "Triângulo", "Estrela"],
+                correctAnswer: "Triângulo",
+                image: "https://placehold.co/80x80/34d399/ffffff?text=🔺&font=Inter" // Verde para Triângulo
+            }
+        ];
+
+        // --- Elementos do DOM ---
+        const startScreen = document.getElementById('startScreen');
+        const questionScreen = document.getElementById('questionScreen');
+        const resultScreen = document.getElementById('resultScreen');
+
+        const startButton = document.getElementById('startButton');
+        const nextButton = document.getElementById('nextButton');
+        const restartButton = document.getElementById('restartButton');
+
+        const questionText = document.getElementById('questionText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const feedbackArea = document.getElementById('feedbackArea');
+
+        const progressText = document.getElementById('progressText');
+        const progressBar = document.getElementById('progressBar');
+
+        const scoreText = document.getElementById('scoreText');
+        const resultImage = document.getElementById('resultImage');
+        const resultMessage = document.getElementById('resultMessage');
+
+        // --- Variáveis de Estado do Quiz ---
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answerSelected = false;
+
+        // --- Funções do Quiz ---
+
+        /**
+         * Inicia o quiz, escondendo a tela inicial e mostrando a primeira pergunta.
+         */
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            answerSelected = false;
+            startScreen.classList.add('hidden');
+            resultScreen.classList.add('hidden');
+            questionScreen.classList.remove('hidden');
+            nextButton.classList.add('hidden');
+            feedbackArea.innerHTML = ''; // Limpa feedback anterior
+            showQuestion();
+        }
+
+        /**
+         * Exibe a pergunta atual e suas opções.
+         */
+        function showQuestion() {
+            answerSelected = false; // Reseta a flag de seleção de resposta
+            feedbackArea.innerHTML = ''; // Limpa feedback da pergunta anterior
+            nextButton.classList.add('hidden'); // Esconde o botão de próxima
+
+            const currentQuestion = questions[currentQuestionIndex];
+            questionText.textContent = currentQuestion.question;
+            optionsContainer.innerHTML = ''; // Limpa opções anteriores
+
+            // Atualiza barra de progresso e texto
+            progressText.textContent = `Pergunta ${currentQuestionIndex + 1} de ${questions.length}`;
+            const progressPercentage = ((currentQuestionIndex + 1) / questions.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+
+            // Cria botões para cada opção de resposta
+            currentQuestion.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add('btn', 'btn-option');
+                button.addEventListener('click', () => selectAnswer(option, button));
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        /**
+         * Processa a resposta selecionada pelo usuário.
+         * @param {string} selectedOption - A opção de resposta escolhida.
+         * @param {HTMLElement} selectedButton - O botão que foi clicado.
+         */
+        function selectAnswer(selectedOption, selectedButton) {
+            if (answerSelected) return; // Impede múltiplas seleções
+            answerSelected = true;
+
+            const currentQuestion = questions[currentQuestionIndex];
+            const isCorrect = selectedOption === currentQuestion.correctAnswer;
+
+            // Desabilita todos os botões de opção após uma seleção
+            Array.from(optionsContainer.children).forEach(btn => {
+                btn.disabled = true;
+                // Destaca a resposta correta mesmo que o usuário erre
+                if (btn.textContent === currentQuestion.correctAnswer) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            if (isCorrect) {
+                score++;
+                selectedButton.classList.add('correct');
+                feedbackArea.innerHTML = `
+                    <svg class="feedback-icon text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Correto! 🎉
+                `;
+                feedbackArea.classList.remove('text-red-500');
+                feedbackArea.classList.add('text-green-500');
+            } else {
+                selectedButton.classList.add('incorrect');
+                feedbackArea.innerHTML = `
+                    <svg class="feedback-icon text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Ops! A resposta certa era "${currentQuestion.correctAnswer}".
+                `;
+                feedbackArea.classList.remove('text-green-500');
+                feedbackArea.classList.add('text-red-500');
+            }
+
+            nextButton.classList.remove('hidden'); // Mostra o botão de próxima
+        }
+
+        /**
+         * Avança para a próxima pergunta ou mostra os resultados se o quiz acabou.
+         */
+        function handleNextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        /**
+         * Exibe a tela de resultados finais.
+         */
+        function showResults() {
+            questionScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            scoreText.textContent = `${score} / ${questions.length}`;
+
+            const percentage = (score / questions.length) * 100;
+            if (percentage >= 75) {
+                resultMessage.textContent = "Parabéns! Você foi incrível! 🌟";
+                resultImage.src = "https://placehold.co/120x120/10b981/ffffff?text=🏆&font=Inter"; // Verde para ótimo
+            } else if (percentage >= 50) {
+                resultMessage.textContent = "Muito bem! Continue aprendendo! 😊";
+                resultImage.src = "https://placehold.co/120x120/3b82f6/ffffff?text=👍&font=Inter"; // Azul para bom
+            } else {
+                resultMessage.textContent = "Não desanime! Tente de novo e aprenda mais! 📚";
+                resultImage.src = "https://placehold.co/120x120/f59e0b/ffffff?text=🤔&font=Inter"; // Amarelo para tentar de novo
+            }
+        }
+
+        // --- Event Listeners ---
+        startButton.addEventListener('click', startQuiz);
+        nextButton.addEventListener('click', handleNextQuestion);
+        restartButton.addEventListener('click', startQuiz); // Reinicia o quiz
+
+        // --- Inicialização (opcional, se quiser começar direto em uma tela para debug) ---
+        // startQuiz(); // Descomente para pular a tela inicial durante o desenvolvimento
+    </script>
+</body>
+</html>
